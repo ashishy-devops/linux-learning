@@ -1,0 +1,15 @@
+How to add user
+-------------------------
+sudo adduser <username>
+
+
+How to add user with no password and should not be accessible to other user
+---------------------------------------------------------------------------
+sudo adduser --disabled-password <username>
+
+sudo chmod 700 /home/username
+
+sudo chmod -R 700 /home/username/*
+
+
+
