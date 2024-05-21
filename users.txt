@@ -12,4 +12,18 @@ sudo chmod 700 /home/username
 sudo chmod -R 700 /home/username/*
 
 
+How to delete user from everywhere
+-------------------------------------
+opt1. sudo deluser <username>
+
+opt2. sudo deluser --remove-home <username>
+
+sudo pgrep -u <username>
+
+check for any additional or configurational files associated with that user, such as log files or custom configurations in /etc. Remove them manually if necessary
+
+check system files like '/etc/passwd', '/etc/shadow', and '/etc/group' to ensure user has been removed from these files.
+
+if this user has access to some other systems via SSH keys, make sure to remove their access.
+
 
