@@ -1,10 +1,10 @@
-How to add user
+How to add user?
 -------------------------
 sudo adduser <username>
 
 
-How to add user with no password and should not be accessible to other user
----------------------------------------------------------------------------
+How to add user with no password and should not be accessible to other user?
+------------------------------------------------------------------------------
 sudo adduser --disabled-password <username>
 
 sudo chmod 700 /home/username
@@ -12,7 +12,7 @@ sudo chmod 700 /home/username
 sudo chmod -R 700 /home/username/*
 
 
-How to delete user from everywhere
+How to delete user from everywhere?
 -------------------------------------
 opt1. sudo deluser <username>
 
@@ -25,5 +25,111 @@ check for any additional or configurational files associated with that user, suc
 check system files like '/etc/passwd', '/etc/shadow', and '/etc/group' to ensure user has been removed from these files.
 
 if this user has access to some other systems via SSH keys, make sure to remove their access.
+
+
+How to allow the user to execute the sudo commands without entering the password?
+-------------------------------------------------------------------------------------
+<username> ALL=(ALL) NOPASSWD:ALL
+
+add above line in file /etc/sudoers
+
+
+Since the linux is file system, so every user's cred should also be stored in file?
+-------------------------------------------------------------------------------------
+Yes, /etc/shadow is the file which stores all the password of users in SHA-512 hash encrypted format, which is not possible to decrypt, although you can use hashcat type tools which will brute force and will try to match with the encrypted value.
+
+
+how does you know, a user has password and whether he can login or not with the password?
+-------------------------------------------------------------------------------------------
+
+The file /etc/shadow contains user's password info, se we check there
+user1:encrypted_password:::...
+user2:*:18245:0:99999:7:::
+user3:!:18245:0:99999:7:::
+
+user1 has password and it is stored here in encrypted form ( SHA-512 ) and he can login using this password.
+
+user2 has no password set and he cannot login using password.
+
+user3's password has been locked and he also cannot login using password.
+
+
+Understanding /etc/passwd line.
+----------------------------------
+ashish:x:1001:1001:Ashish Yadav,,,:/home/ashish:/bin/bash
+
+so above line represents following thing:-
+username:password:UID:GID:comment:home:shell
+
+
+What is UID/GID?
+-------------------
+UID- user identifier, used by system to associate ownership of files and processes with specific users. Root has UID 0. General users have UID greater than 1000.
+
+GID - group identifier, It is used to determine group membership and permissions for files and directories. Root has 0, other general groups > 1000.
+
+
+You are linux administrator, You need to add developer user in linux server, how will you do?
+------------------------------------------------------------------------------------------------
+sudo groupadd developers
+
+sudo visudo  ||   sudo vi /etc/sudoers
+
+%developers ALL=(ALL) NOPASSWD: ALL
+
+sudo adduser --password-disabled <username>
+
+sudo usermod -aG developers <username>
+
+
+How to give access to them?
+--------------------------------
+cd /home/<username>/
+
+mkdir .ssh
+
+vi authorized_keys
+
+add their public key in above file
+
+whitelist their public ip in security group.
+
+Now they can connect with the command
+ssh -i .ssh/id_rsa <username>@<publicIPofServer>
+
+
+How to track user's activity?
+--------------------------------
+sudo apt install auditd
+
+sudo systemctl enable auditd
+
+sudo systemctl start auditd
+
+sudo vi /etc/audit/audit.rules
+#append file with below line to add rule. Below rule monitor all files reads and writes.
+-a always,exit -F arch=b64 -S open,openat,creat,open_by_handle_at -F exit=-EACCES -F auid>=1000 -k read_write
+
+sudo systemctl reload auditd
+
+#Review audit logs
+ausearch -k read_write
+
+
+                         OR
+
+you can monitor users sessions with below commands:
+w
+who
+last
+
+                         OR
+you can check system logs of specific user with below command:
+grep <username> /var/log/auth.log
+grep <username> /var/log/syslog
+
+                         OR
+user process monitoring with below command:
+ps -aux | grep <username>
 
 
